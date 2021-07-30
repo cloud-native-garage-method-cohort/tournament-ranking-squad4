@@ -1,19 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react'
+import axios from 'axios'
 import './App.css';
-import EntryForm from './components/entryForm';
+import EntryForm from './components/entryForm'
 import Ranking from './components/ranking'
 
 export default function App() {
-  const [entries, setEntry] = useState([
-    { "name": "paul", "score": 5 },
-    { "name": "marcos", "score": 8 },
-    { "name": "raul", "score": 6 },
-  ])
+  const [entries, setEntries] = useState([])
 
-  
+  useEffect(() => {
+    requestEntries()
+  }, [])
 
-  const addEntry = (entry) => {
-    setEntry(entries.concat(entry))
+  const requestEntries = () => {
+    axios.get('http://localhost:3000/ranking'
+    ).then(response => {
+      setEntries(response.data)
+    }).catch(error => {
+      console.log(error)
+    })
+  }
+
+  const addEntry = ({ name, score }) => {
+    console.log('addEntry', name, score)
+    axios.get(`http://localhost:3000/inscore?name=${name}&score=${score}`,
+    ).then(response => {
+      setEntries(response.data)
+    }).catch(error => {
+      console.log(error)
+    })
   }
 
   return (
