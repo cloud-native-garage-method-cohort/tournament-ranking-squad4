@@ -1,41 +1,107 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+ //function for retrieve index of where is store a specific partecipant
+ var find_index = function(array,name)
+ {
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+    for(var i=0;i<array.length;i++)
+    {
 
+      var element =array[i];
+
+      if(element.name==name)
+        {
+          return i;
+        }
+        
+    }
+
+    return -1;
+
+ }
+
+//function for calcuate the ranking grouping by name and sorting by score
+var calculate_ranking = function(array1, key) {
+
+
+  //array with all session results
+  var app_array=[];
+
+  array1.forEach(function(element) {
+  var key=find_index(app_array,element['name']);
+
+
+    if(key==-1)
+    {
+
+      var new_element={};
+      new_element['name']=element['name'];
+      new_element['score']=element['score'];
+
+      app_array.push(new_element);
+
+    }
+    else
+    {
+
+      app_array[key]['score']=app_array[key]['score']+element['score'];
+
+    }
+
+
+  })
+
+  app_array.sort(function (a, b) {
+   return b.score - a.score;
+  });
+
+  return app_array;
+
+};
+
+
+
+var results=[
+  {"name":"paul", "score":5},
+  {"name":"marcos", "score":8},
+  {"name":"raul", "score":6},
+  {"name":"marcos", "score":2}
+
+];
+
+
+// service setup
+var express = require("express");
 var app = express();
-
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
-
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
+app.listen(3000, () => {
+console.log("running port 3000");
 });
 
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+//service for raking list
+app.get("/ranking", (req, res, next) => {
+  res.json(calculate_ranking(results));
 });
 
-module.exports = app;
+//service for insert new result (name, score)
+app.get("/inscore", (req, res, next) => {
+
+  var name = req.query.name;
+  var score = req.query.score;
+
+  console.log("added score "+score+" for "+name);
+  var new_obj={};
+  new_obj['name']=name;
+  new_obj['score']=parseInt(score);
+
+  if(score >=0 && score <=10)
+  {
+    results.push(new_obj);
+
+    var output={"result":"success", msg:""}
+    res.json(output);
+
+  }
+  else
+  {
+    var result={"result":"failed", msg:"score out of bound"}
+  }
+
+});
