@@ -1,25 +1,25 @@
-import logo from './logo.svg';
+import { useState } from 'react';
 import './App.css';
+import EntryForm from './components/entryForm';
+import Ranking from './components/ranking'
 
-function App() {
+export default function App() {
+  const [entries, setEntry] = useState([
+    { "name": "paul", "score": 5 },
+    { "name": "marcos", "score": 8 },
+    { "name": "raul", "score": 6 },
+  ])
+
+  
+
+  const addEntry = (entry) => {
+    setEntry(entries.concat(entry))
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <Ranking entries={entries} />
+      <EntryForm addEntry={addEntry} />
     </div>
-  );
+  )
 }
-
-export default App;
