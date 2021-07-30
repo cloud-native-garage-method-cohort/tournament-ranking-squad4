@@ -76,9 +76,10 @@ console.log("running port 3000");
 });
 
 //service for raking list
-//app.get("/ranking", (req, res, next) => {
-  //res.json(calculate_ranking(results));
-//});
+app.get("/ranking", (req, res, next) => {
+  res.json(calculate_ranking(results));
+});
+
 
 //service for insert new result (name, score)
 app.get("/inscore", (req, res, next) => {
